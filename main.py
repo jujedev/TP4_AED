@@ -44,3 +44,5 @@ de datos, por lo que muy posiblemente el tamaño del "arreglito" que les tamos p
 50000 (cincuenta mil) objetos... Deduzcan lo que deben hacer…
 """
 
+def principal():
+  print("Como estas")
