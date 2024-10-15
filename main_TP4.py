@@ -1,5 +1,3 @@
-import math
-
 from Envio import Envio
 import os
 import pickle
@@ -132,7 +130,6 @@ def buscar_por_cod_postal(cp, file_name):
 def buscar_por_direccion(direccion, file_name):
     arch = open(file_name, "rb")
     tam = os.path.getsize(file_name)
-    cp_encontrados = 0
     while arch.tell() < tam:
         data = pickle.load(arch)
         cod_postal, dir_fisica, tipo_envio, forma_pago = get_data_bin(data)
@@ -210,6 +207,41 @@ def obtener_importe(cod_postal, tipo_carta, forma_pago):
     return final
 
 
+def generar_array_envios(envios, file_name, promedio):
+    arch = open(file_name, "rb")
+    tam = os.path.getsize(file_name)
+    contador = 0
+    while arch.tell() < tam:
+        data = pickle.load(arch)
+        if contador == 0 or contador == 1:
+            pass
+        else:
+            cod_postal, dir_fisica, tipo_envio, forma_pago = get_data_bin(data)
+            if obtener_importe(cod_postal, tipo_envio, forma_pago) > promedio:
+                envios.append(Envio(cod_postal, dir_fisica, tipo_envio, forma_pago))
+        contador += 1
+    arch.close()
+
+
+def mostrar_array(envios):
+    for envio in envios:
+        print(envio)
+
+
+def ordenar_shellshort(envios):
+    n = len(envios)
+    gap = n // 2
+    while gap > 0:
+        for i in range(gap, n):
+            temp = envios[i]
+            j = i
+            while j >= gap and envios[j - gap].codigo_postal > temp.codigo_postal:
+                envios[j] = envios[j - gap]
+                j -= gap
+            envios[j] = temp
+        gap //= 2
+
+
 def main():
     file_name = "datos.dat"
     envios = []
@@ -219,7 +251,6 @@ def main():
     while f_run_program:
         op = menu()
         if op == 1:
-            ##cop_csv_to_bin("")
             punto1()
         elif op == 2:
             nuevo_envio = crear_envio()
@@ -239,6 +270,9 @@ def main():
         elif op == 8:
             prom = calc_promedio(file_name)
             print(f"Promedio es: {prom}")
+            generar_array_envios(envios, file_name, prom)
+            ordenar_shellshort(envios)
+            mostrar_array(envios)
         else:
             f_run_program = False
 
