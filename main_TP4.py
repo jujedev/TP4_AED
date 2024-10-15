@@ -1,3 +1,7 @@
+from Envio import Envio
+import os
+import pickle
+
 def menu():
     print("***** GESTION DE ENVIOS POR CORREO *****")
     print("1. Crear archivo binario de registros\n"
@@ -15,6 +19,36 @@ def menu():
     return op
 
 
+def cop_csv_to_bin(name_arch):
+    texto = open('envios-tp4.csv', 'rt')
+    arch = open(name_arch, "w+b")
+
+    for linea in texto:
+        pickle.dump(linea, arch)
+
+    arch.close()
+
+def read_bin(name_arch):
+    arch = open(name_arch, "rb")
+    tam = os.path.getsize(name_arch)
+    while arch.tell() < tam:
+        data = pickle.load(arch)
+        print(data)
+def punto1():
+    name_arch = "datos.dat"
+
+    if os.path.exists(name_arch):
+        print(f"Advertencia, ya existe el archivo {name_arch} , desea sobrescribir")
+        print("1. Cancelar\n2. Sobrescribir")
+        op = int(input("?: "))
+        while op < 1 or op > 2:
+            op = int(input("Por favor, ingrese una opción válida: "))
+        if op == 1:
+            return
+        cop_csv_to_bin(name_arch)
+    else:
+        cop_csv_to_bin(name_arch)
+
 
 def main():
     envios = []
@@ -24,8 +58,10 @@ def main():
     while f_run_program:
         op = menu()
         if op == 1:
-            pass
+            ##cop_csv_to_bin("")
+            punto1()
         elif op == 2:
+            read_bin("datos.dat")
             pass
         elif op == 3:
             pass
@@ -41,7 +77,6 @@ def main():
             pass
         else:
             f_run_program = False
-
 
 
 if __name__ == '__main__':
