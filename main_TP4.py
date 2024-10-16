@@ -2,6 +2,7 @@ from Envio import Envio
 import os
 import pickle
 
+
 def menu():
     print("***** GESTION DE ENVIOS POR CORREO *****")
     print("1. Crear archivo binario de registros\n"
@@ -61,13 +62,19 @@ def crear_envio():
 
 def add_final_bin(envio, file_name):
     arch = open(file_name, "ab")
-    data = envio.codigo_postal + "," + envio.direccion_fisica + "," + str(envio.tipo_envio) + "," + str(envio.forma_pago)
+    data = envio.codigo_postal + "," + envio.direccion_fisica + "," + str(envio.tipo_envio) + "," + str(
+        envio.forma_pago)
     pickle.dump(data, arch)
     arch.close()
 
 
 # Punto 3
 def read_bin(name_arch):
+    if not os.path.exists(name_arch):
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("No existe el archivo binario, por favor cargue uno")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        return
     arch = open(name_arch, "rb")
     tam = os.path.getsize(name_arch)
     while arch.tell() < tam:
@@ -138,6 +145,79 @@ def buscar_por_direccion(direccion, file_name):
             return
     print(f"No se ha encontrado registro con la direccion {direccion}")
     arch.close()
+
+
+# Punto 6
+
+def punto6(file_name):
+    if not os.path.exists(file_name):
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("No existe el archivo binario, por favor cargue uno")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        return
+
+    n = 7
+    m = 2
+    vec2d = [0] * n
+    for f in range(n):
+        vec2d[f] = [0] * m
+
+    txt_tipo_envio = 7 * [0]
+    txt_tipo_envio[0] = "Simple - Peso menor a 20g"
+    txt_tipo_envio[1] = "Simple - Peso entre 20g y 150g"
+    txt_tipo_envio[2] = "Simple - Peso entre a 150g y 500g"
+    txt_tipo_envio[3] = "Certificada - Peso menor a 150g"
+    txt_tipo_envio[4] = "Certificada - Peso entre a 150g y 500g"
+    txt_tipo_envio[5] = "Expresa - Peso menor a 150g"
+    txt_tipo_envio[6] = "Expresa - Peso entre a 150g y 500g"
+
+    txt_forma_pago = 2 * [0]
+    txt_forma_pago[0] = "Efectivo"
+    txt_forma_pago[1] = "Tarjeta de Credito"
+
+    arch = open(file_name, "rb")
+    tam = os.path.getsize(file_name)
+    contador = 0
+    while arch.tell() < tam:
+        data = pickle.load(arch)
+        if contador == 0 or contador == 1:
+            pass
+        else:
+            cod_postal, dir_fisica, tipo_envio, forma_pago = get_data_bin(data)
+
+            vec2d[int(tipo_envio)][(int(forma_pago)) - 1] += 1
+
+        contador += 1
+
+    filas = len(txt_tipo_envio)
+    columnas = len(txt_forma_pago)
+    for i in range(filas):
+        for j in range(columnas):
+            cant = vec2d[i][j]
+            if cant > 0:
+                print(f"Tipo envio: {txt_tipo_envio[i]} X Forma Pago: {txt_forma_pago[j]} Contiene: {cant}")
+
+    return vec2d
+
+
+# Punto 7
+
+def punto7(vector):
+    filas = len(vector)
+    columnas = len(vector[0])
+
+    for f in range(filas):
+        sum_filas = 0
+        for c in range(columnas):
+            sum_filas += vector[f][c]
+
+    for c in range(columnas):
+        sum_col = 0
+        for f in range(filas):
+            sum_col += vector[f][c]
+
+    print(f"Total Filas: {sum_filas}")
+    print(f"Total Columnas: {sum_col}")
 
 
 # Punto 8
@@ -245,9 +325,9 @@ def ordenar_shellshort(envios):
 def main():
     file_name = "datos.dat"
     envios = []
-    arrSuma_Envios = []
+    vector = None
     f_run_program = True
-    control = None
+
     while f_run_program:
         op = menu()
         if op == 1:
@@ -258,15 +338,29 @@ def main():
         elif op == 3:
             read_bin("datos.dat")
         elif op == 4:
-            cp = input("Ingrese el codigo postal a buscar: ")
-            buscar_por_cod_postal(cp, file_name)
+
+            if not os.path.exists(file_name):
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print("No existe el archivo binario, por favor cargue uno")
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            else:
+                cp = input("Ingrese el codigo postal a buscar: ")
+                buscar_por_cod_postal(cp, file_name)
         elif op == 5:
-            direccion = input("Ingrese la direccion a buscar: ")
-            buscar_por_direccion(direccion, file_name)
+            if not os.path.exists(file_name):
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print("No existe el archivo binario, por favor cargue uno")
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            else:
+                direccion = input("Ingrese la direccion a buscar: ")
+                buscar_por_direccion(direccion, file_name)
         elif op == 6:
-            pass
+            vector = punto6(file_name)
         elif op == 7:
-            pass
+            if vector is None:
+                print("Seleccione antes la opcion 6")
+            else:
+                punto7(vector)
         elif op == 8:
             prom = calc_promedio(file_name)
             print(f"Promedio es: {prom}")
