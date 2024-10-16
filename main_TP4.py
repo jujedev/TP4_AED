@@ -362,11 +362,16 @@ def main():
             else:
                 punto7(vector)
         elif op == 8:
-            prom = calc_promedio(file_name)
-            print(f"Promedio es: {prom}")
-            generar_array_envios(envios, file_name, prom)
-            ordenar_shellshort(envios)
-            mostrar_array(envios)
+            if not os.path.exists(file_name):
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                print("No existe el archivo binario, por favor cargue uno")
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            else:
+                prom = calc_promedio(file_name)
+                print(f"Promedio es: {prom}")
+                generar_array_envios(envios, file_name, prom)
+                ordenar_shellshort(envios)
+                mostrar_array(envios)
         else:
             f_run_program = False
 
